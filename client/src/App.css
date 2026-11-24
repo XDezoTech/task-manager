@@ -1,0 +1,519 @@
+/* ==============================
+   TaskMate - MongoDB Theme & Styles
+================================ */
+
+:root {
+  --mdb-dark: #001e2b;
+  --mdb-dark-elevated: #062a3a;
+  --mdb-green: #00ed64;
+  --mdb-green-hover: #00d65a;
+  --mdb-evergreen: #00684a;
+  --mdb-green-tint: #e3fcf7;
+  --mdb-bg: #f9fbfa;
+  --mdb-surface: #ffffff;
+  --mdb-border: #e8edeb;
+  --mdb-text-main: #001e2b;
+  --mdb-text-muted: #5c6c75;
+  --mdb-danger: #cf222e;
+  --mdb-danger-tint: #ffebe9;
+  --mdb-warn: #9a6700;
+  --mdb-warn-tint: #fff8c5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--mdb-bg);
+  color: var(--mdb-text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==============================
+   Layout Shell
+================================ */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==============================
+   Header (MongoDB Dark Bar)
+================================ */
+
+.header {
+  background-color: var(--mdb-dark);
+  color: #ffffff;
+  padding: 20px 8%;
+  border-bottom: 1px solid var(--mdb-dark-elevated);
+}
+
+.header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--mdb-green);
+  box-shadow: 0 0 10px rgba(0, 237, 100, 0.5);
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.header p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #b8c4c2;
+  margin-top: 2px;
+}
+
+.header-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mdb-green);
+  background: rgba(0, 237, 100, 0.12);
+  border: 1px solid rgba(0, 237, 100, 0.3);
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+/* ==============================
+   Main Content & Hero
+================================ */
+
+.main-content {
+  width: 90%;
+  max-width: 1000px;
+  margin: 36px auto;
+  flex: 1;
+}
+
+.welcome {
+  background-color: var(--mdb-dark);
+  color: #ffffff;
+  padding: 28px 32px;
+  border-radius: 16px;
+  margin-bottom: 28px;
+  border: 1px solid var(--mdb-dark-elevated);
+}
+
+.welcome-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mdb-green);
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+
+
+.welcome h2 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+
+.welcome p {
+  color: #b8c4c2;
+  font-size: 15px;
+}
+
+/* ==============================
+   Feedback Alerts (Validation & Status)
+================================ */
+
+.feedback-banner {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feedback-success {
+  background-color: var(--mdb-green-tint);
+  color: var(--mdb-evergreen);
+  border: 1px solid #a6f4c5;
+}
+
+.feedback-error {
+  background-color: var(--mdb-danger-tint);
+  color: var(--mdb-danger);
+  border: 1px solid #ffcecb;
+}
+
+/* ==============================
+   Cards & Form Section
+================================ */
+
+.task-form-section,
+.task-list-section {
+  background-color: var(--mdb-surface);
+  padding: 28px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--mdb-border);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.task-form-section h2,
+.task-list-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mdb-text-main);
+  letter-spacing: -0.01em;
+}
+
+.task-form-section h2 {
+  margin-bottom: 18px;
+}
+
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mdb-text-main);
+}
+
+.task-form input,
+.task-form textarea {
+  width: 100%;
+  padding: 11px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--mdb-text-main);
+  background-color: var(--mdb-surface);
+  border: 1px solid #c1c7c6;
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.task-form textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.task-form input:focus,
+.task-form textarea:focus {
+  outline: none;
+  border-color: var(--mdb-evergreen);
+  box-shadow: 0 0 0 3px rgba(0, 104, 74, 0.15);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* ==============================
+   Buttons (MongoDB Signature Style)
+================================ */
+
+.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  background-color: var(--mdb-green);
+  color: var(--mdb-dark);
+  border-color: var(--mdb-evergreen);
+}
+
+.btn-primary:hover {
+  background-color: var(--mdb-green-hover);
+  border-radius: 20px;
+}
+
+.btn-secondary {
+  background-color: var(--mdb-surface);
+  color: var(--mdb-text-main);
+  border-color: #c1c7c6;
+}
+
+.btn-secondary:hover {
+  background-color: var(--mdb-bg);
+  border-color: var(--mdb-dark);
+}
+
+/* ==============================
+   Filter Controls (Pill Tabs)
+================================ */
+
+.filter-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--mdb-border);
+  background-color: var(--mdb-bg);
+  color: var(--mdb-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--mdb-evergreen);
+  color: var(--mdb-text-main);
+}
+
+.filter-btn.active-filter {
+  background-color: var(--mdb-dark);
+  color: var(--mdb-green);
+  border-color: var(--mdb-dark);
+}
+
+/* ==============================
+   Task Cards & Badges
+================================ */
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--mdb-border);
+  background-color: var(--mdb-surface);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.task-card:hover {
+  border-color: #b8c4c2;
+}
+
+.task-card.is-completed {
+  background-color: var(--mdb-bg);
+}
+
+.task-card.is-completed .task-title {
+  text-decoration: line-through;
+  color: var(--mdb-text-muted);
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.task-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--mdb-text-main);
+}
+
+.task-desc {
+  font-size: 14px;
+  color: var(--mdb-text-muted);
+  margin-bottom: 10px;
+}
+
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.status-pending {
+  background-color: var(--mdb-warn-tint);
+  color: var(--mdb-warn);
+}
+
+.status-completed {
+  background-color: var(--mdb-green-tint);
+  color: var(--mdb-evergreen);
+}
+
+.due-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--mdb-text-muted);
+}
+
+/* ==============================
+   Task Card Action Buttons
+================================ */
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-sm {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--mdb-border);
+  background-color: var(--mdb-surface);
+  color: var(--mdb-text-main);
+  transition: all 0.15s ease;
+}
+
+.btn-sm:hover {
+  border-color: var(--mdb-dark);
+  background-color: var(--mdb-bg);
+}
+
+.btn-complete:hover {
+  border-color: var(--mdb-evergreen);
+  background-color: var(--mdb-green-tint);
+  color: var(--mdb-evergreen);
+}
+
+.btn-delete {
+  color: var(--mdb-danger);
+}
+
+.btn-delete:hover {
+  border-color: var(--mdb-danger);
+  background-color: var(--mdb-danger-tint);
+}
+
+/* ==============================
+   Empty State & Footer
+================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  border: 1px dashed #c1c7c6;
+  border-radius: 12px;
+  background-color: var(--mdb-bg);
+}
+
+.empty-state p {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--mdb-text-main);
+  margin-bottom: 4px;
+}
+
+.empty-state span {
+  font-size: 13px;
+  color: var(--mdb-text-muted);
+}
+
+.footer {
+  background-color: var(--mdb-dark);
+  color: #b8c4c2;
+  text-align: center;
+  padding: 18px 8%;
+  font-size: 13px;
+  margin-top: auto;
+}
+
+/* ==============================
+   Responsive Mobile Layout
+================================ */
+
+@media (max-width: 640px) {
+  .task-card {
+    flex-direction: column;
+  }
+
+  .task-actions {
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid var(--mdb-border);
+    padding-top: 12px;
+  }
+}
