@@ -1,35 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
+import TaskForm from "./components/TaskForm";
+import FilterButtons from "./components/FilterButtons";
+import TaskList from "./components/TaskList";
+import {
+  getTasks,
+  createTask,
+  updateTask,
+  deleteTask as removeTask,
+} from "./services/taskApi";
 
 function App() {
-  // Task data
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Learn React fundamentals",
-      description: "Understand components, props and state.",
-      status: "pending",
-      dueDate: "",
-    },
-    {
-      id: 2,
-      title: "Create TaskMate frontend",
-      description: "Build the initial user interface.",
-      status: "completed",
-      dueDate: "",
-    },
-  ]);
+  // Task data from MongoDB
+  const [tasks, setTasks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Form states
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
 
-  // Edit and filter states
+  // Edit, filter, and feedback states
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [feedback, setFeedback] = useState(null);
 
-  // Reset form
+  function showFeedback(type, message) {
+    setFeedback({ type, message });
+    setTimeout(() => {
+      setFeedback(null);
+    }, 3000);
+  }
+
+  // Load tasks from Express API on initial render
+  useEffect(() => {
+    async function loadTasks() {
+      try {
+        setIsLoading(true);
+        const data = await getTasks();
+        setTasks(data);
+      } catch (error) {
+        showFeedback("error", `Error loading tasks: ${error.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadTasks();
+  }, []);
+
   function resetForm() {
     setTitle("");
     setDescription("");
@@ -37,81 +56,99 @@ function App() {
     setEditingTaskId(null);
   }
 
-  // Create or update task
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    if (!title.trim()) return;
-
-    if (editingTaskId !== null) {
-      setTasks((previousTasks) =>
-        previousTasks.map((task) =>
-          task.id === editingTaskId
-            ? {
-                ...task,
-                title: title.trim(),
-                description: description.trim(),
-                dueDate,
-              }
-            : task,
-        ),
-      );
-    } else {
-      const newTask = {
-        id: Date.now(),
-        title: title.trim(),
-        description: description.trim(),
-        status: "pending",
-        dueDate,
-      };
-
-      setTasks((previousTasks) => [...previousTasks, newTask]);
+    if (!title.trim()) {
+      showFeedback("error", "Validation error: Task title is required.");
+      return;
     }
 
-    resetForm();
-  }
+    try {
+      if (editingTaskId !== null) {
+        const updated = await updateTask(editingTaskId, {
+          title: title.trim(),
+          description: description.trim(),
+          dueDate: dueDate || null,
+        });
 
-  // Edit task
-  function editTask(task) {
-    setEditingTaskId(task.id);
-    setTitle(task.title);
-    setDescription(task.description);
-    setDueDate(task.dueDate);
-  }
+        setTasks((previousTasks) =>
+          previousTasks.map((task) =>
+            task._id === editingTaskId ? updated : task,
+          ),
+        );
+        showFeedback("success", "Task updated in MongoDB.");
+      } else {
+        const created = await createTask({
+          title: title.trim(),
+          description: description.trim(),
+          dueDate: dueDate || null,
+        });
 
-  // Complete or mark pending
-  function toggleTask(id) {
-    setTasks((previousTasks) =>
-      previousTasks.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              status: task.status === "completed" ? "pending" : "completed",
-            }
-          : task,
-      ),
-    );
-  }
+        setTasks((previousTasks) => [created, ...previousTasks]);
+        showFeedback("success", "New task saved to MongoDB.");
+      }
 
-  // Delete task
-  function deleteTask(id) {
-    setTasks((previousTasks) => previousTasks.filter((task) => task.id !== id));
-
-    if (editingTaskId === id) {
       resetForm();
+    } catch (error) {
+      showFeedback("error", error.message);
     }
   }
 
-  // Filter tasks
+  function editTask(task) {
+    setEditingTaskId(task._id);
+    setTitle(task.title);
+    setDescription(task.description || "");
+    setDueDate(task.dueDate ? task.dueDate.split("T") : "");
+    setFeedback(null);
+  }
+
+  async function toggleTask(task) {
+    const nextStatus = task.status === "completed" ? "pending" : "completed";
+
+    try {
+      const updated = await updateTask(task._id, { status: nextStatus });
+
+      setTasks((previousTasks) =>
+        previousTasks.map((item) => (item._id === task._id ? updated : item)),
+      );
+      showFeedback("success", `Marked as ${nextStatus}.`);
+    } catch (error) {
+      showFeedback("error", error.message);
+    }
+  }
+
+  async function deleteTask(id) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?",
+    );
+    if (!confirmed) return;
+
+    try {
+      await removeTask(id);
+      setTasks((previousTasks) =>
+        previousTasks.filter((task) => task._id !== id),
+      );
+
+      if (editingTaskId === id) {
+        resetForm();
+      }
+
+      showFeedback("success", "Task deleted from database.");
+    } catch (error) {
+      showFeedback("error", error.message);
+    }
+  }
+
+  const counts = {
+    all: tasks.length,
+    pending: tasks.filter((task) => task.status === "pending").length,
+    completed: tasks.filter((task) => task.status === "completed").length,
+  };
+
   const filteredTasks = tasks.filter((task) => {
-    if (filter === "pending") {
-      return task.status === "pending";
-    }
-
-    if (filter === "completed") {
-      return task.status === "completed";
-    }
-
+    if (filter === "pending") return task.status === "pending";
+    if (filter === "completed") return task.status === "completed";
     return true;
   });
 
@@ -119,127 +156,79 @@ function App() {
     <div className="app">
       {/* Header */}
       <header className="header">
-        <h1>TaskMate</h1>
-        <p>Your personal task manager</p>
+        <div className="header-inner">
+          <div>
+            <div className="brand">
+              <span className="brand-dot" />
+              <h1>TaskMate</h1>
+            </div>
+            <p>Personal Task Manager • MERN Stack</p>
+          </div>
+          <span className="header-badge">MongoDB Connected</span>
+        </div>
       </header>
 
       <main className="main-content">
-        {/* Welcome */}
+        {/* Hero / Welcome Banner */}
         <section className="welcome">
-          <h2>Manage your tasks</h2>
-          <p>Organize your work and stay productive.</p>
+          <span className="welcome-eyebrow">Workspace</span>
+          <h2>Organize your tasks. Ship faster.</h2>
+          <p>
+            Manage daily deliverables, track progress, and persist records in
+            MongoDB.
+          </p>
         </section>
 
-        {/* Task Form */}
-        <section className="task-form-section">
-          <h2>{editingTaskId !== null ? "Edit Task" : "Add a new task"}</h2>
+        {/* Feedback Alert Banner */}
+        {feedback && (
+          <div
+            className={`feedback-banner ${
+              feedback.type === "error" ? "feedback-error" : "feedback-success"
+            }`}
+            role="alert"
+          >
+            <span>{feedback.message}</span>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Task title"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              required
-            />
+        {/* Modular Task Form */}
+        <TaskForm
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          dueDate={dueDate}
+          setDueDate={setDueDate}
+          editingTaskId={editingTaskId}
+          onSubmit={handleSubmit}
+          onCancel={resetForm}
+        />
 
-            <textarea
-              placeholder="Task description (optional)"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(event) => setDueDate(event.target.value)}
-            />
-
-            <button type="submit">
-              {editingTaskId !== null ? "Update Task" : "Add Task"}
-            </button>
-
-            {editingTaskId !== null && (
-              <button type="button" onClick={resetForm}>
-                Cancel Edit
-              </button>
-            )}
-          </form>
-        </section>
-
-        {/* Task List */}
+        {/* Modular Task List & Filters */}
         <section className="task-list-section">
-          <h2>My Tasks ({tasks.length})</h2>
-
-          {/* Filter Buttons */}
-          <div className="filter-controls">
-            <button
-              type="button"
-              className={filter === "all" ? "active-filter" : ""}
-              onClick={() => setFilter("all")}
-            >
-              All
-            </button>
-
-            <button
-              type="button"
-              className={filter === "pending" ? "active-filter" : ""}
-              onClick={() => setFilter("pending")}
-            >
-              Pending
-            </button>
-
-            <button
-              type="button"
-              className={filter === "completed" ? "active-filter" : ""}
-              onClick={() => setFilter("completed")}
-            >
-              Completed
-            </button>
+          <div className="section-header">
+            <h2>My Tasks ({tasks.length})</h2>
+            <FilterButtons
+              filter={filter}
+              setFilter={setFilter}
+              counts={counts}
+            />
           </div>
 
-          {/* Display Filtered Tasks */}
-          {filteredTasks.length === 0 ? (
-            <p>No tasks found.</p>
-          ) : (
-            <div className="task-list">
-              {filteredTasks.map((task) => (
-                <article className="task-card" key={task.id}>
-                  <div>
-                    <h3>{task.title}</h3>
-                    <p>{task.description}</p>
-
-                    <span>{task.status}</span>
-
-                    {task.dueDate && <p>Due: {task.dueDate}</p>}
-                  </div>
-
-                  {/* Task Actions */}
-                  <div className="task-actions">
-                    <button type="button" onClick={() => editTask(task)}>
-                      Edit
-                    </button>
-
-                    <button type="button" onClick={() => toggleTask(task.id)}>
-                      {task.status === "completed"
-                        ? "Mark Pending"
-                        : "Complete"}
-                    </button>
-
-                    <button type="button" onClick={() => deleteTask(task.id)}>
-                      Delete
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
+          <TaskList
+            tasks={filteredTasks}
+            filter={filter}
+            isLoading={isLoading}
+            onEdit={editTask}
+            onToggle={toggleTask}
+            onDelete={deleteTask}
+          />
         </section>
       </main>
 
       {/* Footer */}
       <footer className="footer">
-        <p>TaskMate - Personal Task Manager</p>
+        <p>TaskMate — Built with MongoDB, Express, React & Node.js</p>
       </footer>
     </div>
   );
